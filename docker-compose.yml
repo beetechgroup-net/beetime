@@ -1,0 +1,120 @@
+version: '3'
+
+services:
+
+  keycloak:
+    build:
+      context: keycloak
+      dockerfile: Dockerfile
+    ports:
+      - 8443:8443
+      - 8080:8080
+    environment:
+      KC_DB: mssql
+      KC_DB_URL: j  dbc:sqlserver://sql-server:1433;database=keycloak;encrypt=false;trustServerCertificate=false
+      DB_DATABASE: keycloak
+      KC_DB_USERNAME: sa
+      KC_DB_PASSWORD: "MSQu@l1f1c4"
+      KC_HOSTNAME: localhost
+      KC_TRANSACTION_XA_ENABLED: false
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: "MSQu@l1f1c4"
+      KC_HTTP_ENABLED: true
+    restart: always
+    networks:
+      - assistant
+
+  employment:
+    image: inovatrab/assistant-service-employment:latest
+    ports:
+      - 8081
+    environment:
+      - DATABASE_KIND=mssql
+      - DATABASE_USERNAME=sa
+      - DATABASE_PASSWORD=MSQu@l1f1c4
+      - DATABASE_URL=jdbc:sqlserver://sql-server:1433;databaseName=employment-service-db;integratedSecurity=false;encrypt=false;trustServerCertificate=true;
+      - DATABASE_GENERATION=none
+      - GRAYLOG_ENABLED=true
+      - GRAYLOG_HOST=graylog
+      - GRAYLOG_PORT=12201
+      - MAILER_FROM=msqualifica@ms.senai.br
+      - MAILER_HOST=smtp.office365.com
+      - MAILER_PORT=587
+      - MAILER_USERNAME=msqualifica@ms.senai.br
+      - MAILER_PASSWORD=oV972G4v#
+      - MAILER_START_TLS=OPTIONAL
+      - MAILER_AUTH_METHODS=LOGIN
+      - MAILER_MOCK=false
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=msqualifica
+      - KEYCLOAK_CLIENT_ID=employment-service
+      - KEYCLOAK_SECRET=5GAo32bmxLlJwBGd9MIs0jGMFdfJOdfj
+      - KEYCLOAK_GRANT_TYPE=CLIENT_CREDENTIALS
+      - NOTIFICATION_SERVER_URL=http://192.168.25.4:9090/api/messages/send
+      - NOTIFICATION_API_TOKEN=NS0pxoKyQOSPX1n2dt9WW5
+      - NOTIFICATION_EXPIRING_AND_EXPIRED_JOBS_CRON=0 0 3 * * ?
+      - SEAD_DATA_ENTRY_PROCESSING_CRON=180s
+      - MATCHER_PERIOD_OF_TIME_FETCH_QUEUE_IN_SECONDS=30s
+      - MATCHER_NUMBER_OF_THREADS=4
+      - FLYWAY_ENABLED=false
+      - FLYWAY_MIGRATE_AT_START=false
+      - FLYWAY_BASELINE_ON_MIGRATE=false
+      - CORS_ORIGINS=*
+      - SECRET_KEY=MSQu@l1f1c4Ym7X1
+      - APP_URL=https://msqualifica.com.br/dev/
+      - HTTP_HOST=172.16.0.225
+    restart: always
+    networks:
+      - assistant
+
+  frontend:
+    image: inovatrab/assistant-service-frontend:latest
+    depends_on:
+      - employment
+    environment:
+      - NEXT_PUBLIC_RECAPTCHA_KEY=6LfHGbYpAAAAAFpNmkFKWU3PeIl7WJ1sJ2OLXUtq
+      - NEXT_PUBLIC_BASE_URL=https://msqualifica.com.br/dev/employment/api/v1
+      - NEXT_PUBLIC_STANDARD_NUMBER_OF_DAYS_TO_CREATE_JOBS=30
+      - NEXT_PUBLIC_BASE_PATH=/dev
+      - NEXT_PUBLIC_G_TAG_MANAGER_ID=GTM-NLRZ46B6
+    restart: always
+    networks:
+      - assistant
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 3000:80
+    volumes:
+      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - employment
+      - frontend
+      - keycloak
+    networks:
+      - assistant
+
+  portainer:
+    image: portainer/portainer-ce:alpine
+    container_name: portainer
+    command: -H unix:///var/run/docker.sock
+    ports:
+      - "9000:9000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "portainer_data:/data"
+    restart: always
+    networks:
+      - assistant
+
+volumes:
+  sql-server-data:
+  sql-server-log:
+  sql-server-backup:
+  portainer_data:
+
+networks:
+  assistant:
+    driver: bridge
