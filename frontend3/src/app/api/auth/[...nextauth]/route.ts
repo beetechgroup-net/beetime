@@ -29,6 +29,9 @@ const handler = NextAuth({
       return session;
     },
 
+    async redirect({ url, baseUrl }) {
+      return `${baseUrl}/`;
+    },
   },
 });
 
