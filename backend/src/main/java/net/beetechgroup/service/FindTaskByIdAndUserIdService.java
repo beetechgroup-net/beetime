@@ -6,15 +6,15 @@ import net.beetechgroup.entity.Task;
 import net.beetechgroup.repository.TaskRepository;
 
 @ApplicationScoped
-public class FindTaskByIdService {
+public class FindTaskByIdAndUserIdService {
 
     private final TaskRepository taskRepository;
 
-    public FindTaskByIdService(TaskRepository taskRepository) {
+    public FindTaskByIdAndUserIdService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
-    public Task execute(UUID id) {
-        return this.taskRepository.findById(id);
+    public Task execute(UUID id, String userId) {
+        return this.taskRepository.find("id and user.email", id, userId).firstResult();
     }
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -23,6 +24,8 @@ public class Task {
     private LocalDateTime startTime;
     private LocalDateTime stopTime;
     private Long duration;
+    @ManyToOne
+    private User user;
 
     public void create() {
         this.status = TaskStatus.NOT_STARTED;

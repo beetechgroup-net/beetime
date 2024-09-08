@@ -3,7 +3,6 @@ package net.beetechgroup.resource;
 import io.quarkus.oidc.IdToken;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -14,6 +13,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 
 @Path("/auth")
 @ApplicationScoped
+@Produces(MediaType.APPLICATION_JSON)
 @RequiredArgsConstructor
 public class AuthResource {
 
@@ -21,7 +21,20 @@ public class AuthResource {
     JsonWebToken idToken;
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/me")
+    @Authenticated
+    public String me() {
+        String email = idToken.getClaim("email");
+        String firstName = idToken.getClaim("given_name");
+        String lastName = idToken.getClaim("family_name");
+        String picture = idToken.getClaim("picture");
+        idToken.getClaimNames().forEach(System.out::println);
+
+        return idToken.getClaimNames().stream().map(claim -> String.format("%s: %s", claim, idToken.getClaim(claim))).collect(
+                Collectors.joining("\n"));
+    }
+
+    @GET
     @Authenticated
     public String hello() {
         return idToken.getClaimNames().stream().map(claim -> claim + ": " + idToken.getClaim(claim))
