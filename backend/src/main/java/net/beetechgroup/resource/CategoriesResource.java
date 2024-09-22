@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import net.beetechgroup.entity.Category;
-import net.beetechgroup.entity.UserProfile;
 import net.beetechgroup.repository.CategoryRepository;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
@@ -35,8 +34,6 @@ public class CategoriesResource {
         return Response.created(URI.create("/category/" + 1)).entity(category).build();
     }
 
-//    TESTAR A BUSCA DE CATEGORIAS PARA O SELECT NO FRONTEND
-
     @GET
     @Authenticated
     public Response retrieveAll() {
@@ -54,26 +51,5 @@ public class CategoriesResource {
                 .firstResult();
         return Response.ok(category).build();
     }
-//
-//    @PUT
-//    @Path("/{id}/start")
-//    public Response start(@PathParam("id") UUID id) {
-//        Task task = this.startTaskService.execute(id);
-//        return Response.ok(task).build();
-//    }
-//
-//    @PUT
-//    @Path("/{id}/stop")
-//    public Response stop(@PathParam("id") UUID id) {
-//        Task task = this.stopTaskService.execute(id);
-//        return Response.ok(task).build();
-//    }
-//
-//    @DELETE
-//    @Path("/{id}")
-//    public Response deleteById(@PathParam("id") UUID id) {
-//        Task task = this.deleteTaskByIdService.execute(id);
-//        return Response.ok(task).build();
-//    }
 
 }

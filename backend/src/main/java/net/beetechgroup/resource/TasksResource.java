@@ -49,7 +49,7 @@ public class TasksResource {
     @Path("/{id}")
     public Response retrieveById(@PathParam("id") UUID id) {
         String email = idToken.getClaim("email");
-        Task task = this.taskRepository.find("id and user.email", id, email).firstResult();
+        Task task = this.taskRepository.find("id and userId", id, email).firstResult();
         return Response.ok(task).build();
     }
 
