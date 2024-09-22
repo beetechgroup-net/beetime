@@ -19,13 +19,13 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String description;
-    private String category;
+    @ManyToOne
+    private Category category;
     private TaskStatus status;
     private LocalDateTime startTime;
     private LocalDateTime stopTime;
     private Long duration;
-    @ManyToOne
-    private User user;
+    private String userId;
 
     public void create() {
         this.status = TaskStatus.NOT_STARTED;
