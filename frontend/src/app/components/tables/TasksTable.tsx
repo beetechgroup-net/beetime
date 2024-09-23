@@ -9,7 +9,7 @@ import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import dayjs from 'dayjs';
 import {Task} from "@/app/interfaces/Task";
-import {TaskStatus} from "@/app/interfaces/TaskStatus";
+import {prettify, TaskStatus} from "@/app/interfaces/TaskStatus";
 import {useTasks} from "@/app/contexts/TasksContext";
 import {DurationComponent} from "@/app/components/tables/DurationComponent";
 
@@ -17,8 +17,8 @@ function isPlayable(row: Task) {
   return row.status === TaskStatus.NOT_STARTED || row.status === TaskStatus.STOPPED;
 }
 
-export function TasksTable(): React.JSX.Element {
-  const { tasks, fetchTasks, startTask, stopTask, loading, error } = useTasks();
+export function TasksTable() {
+  const { tasks, fetchTasks, startTask, stopTask, loading, error, removeTask } = useTasks();
   const [duration, setDuration] = useState(0);
 
   useEffect(() => {
@@ -36,28 +36,27 @@ export function TasksTable(): React.JSX.Element {
   }
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 100 },
-    { field: 'description', headerName: 'Description', width: 200 },
+    { field: 'category', headerName: 'Category', width: 150, valueFormatter: (params) => params?.name },
+    { field: 'description', headerName: 'Description', width: 400 },
+    { field: 'status', headerName: 'Status', width: 150, valueFormatter: (params) => prettify(params) },
     {
       field: 'startTime',
       headerName: 'Start Time',
-      width: 200,
-      valueFormatter: (params) => params?.value ? dayjs(params?.value).format('MM-DD-YYYY HH:mm') : '-',
+      width: 180,
+      valueFormatter: (params) => params ? dayjs(params).format('YYYY-MM-DD HH:mm:ss') : '-',
     },
     {
       field: 'stopTime',
       headerName: 'Finish Time',
-      width: 200,
-      valueFormatter: (params) => params?.value ? dayjs(params?.value).format('MM-DD-YYYY HH:mm') : '-',
+      width: 180,
+      valueFormatter: (params) => params ? dayjs(params).format('YYYY-MM-DD HH:mm:ss') : '-',
     },
     {
       field: 'duration',
       headerName: 'Duration',
-      width: 150,
+      width: 100,
       renderCell: (params) => <DurationComponent task={params.row} />,
     },
-    { field: 'category', headerName: 'Category', width: 150, valueFormatter: (params) => params?.name },
-    { field: 'status', headerName: 'Status', width: 150 },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -74,9 +73,9 @@ export function TasksTable(): React.JSX.Element {
                   <StopOutlinedIcon color="error" />
                 </IconButton>
             )}
-            <IconButton>
-              <CreateOutlinedIcon color="info" onClick={() => removeTask(params.row.id)} />
-            </IconButton>
+            {/*<IconButton>*/}
+            {/*  <CreateOutlinedIcon color="info" onClick={() => removeTask(params.row.id)} />*/}
+            {/*</IconButton>*/}
             <IconButton>
               <DeleteOutlinedIcon color="warning" onClick={() => removeTask(params.row.id)} />
             </IconButton>
@@ -95,7 +94,6 @@ export function TasksTable(): React.JSX.Element {
             pagination
             loading={loading}
             error={error ? 'Error loading data' : undefined}
-            checkboxSelection
             disableSelectionOnClick
         />
       </Card>

@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {createContext, useContext, useState, useEffect} from 'react';
 import {Task} from "@/app/interfaces/Task";
 import {useSession} from "next-auth/react";
 import {api} from "@/app/lib/api";
@@ -14,18 +14,25 @@ const TaskContext = createContext<{
   createTask: (task: Task) => void;
   startTask: (task: Task) => void;
   stopTask: (task: Task) => void;
+  removeTask: (id: string) => void;
 }>({
   tasks: [],
-  fetchTasks: () => {},
+  fetchTasks: () => {
+  },
   loading: true,
   error: null,
-  createTask: () => {},
-  startTask: () => {},
-  stopTask: () => {}
+  createTask: () => {
+  },
+  startTask: () => {
+  },
+  stopTask: () => {
+  },
+  removeTask: () => {
+  }
 });
 
 
-export const TasksProvider = ({ children }) => {
+export const TasksProvider = ({children}) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,7 +40,7 @@ export const TasksProvider = ({ children }) => {
   const fetchTasks = async (page = 0, size = 10) => {
     setLoading(true);
     try {
-      const {data } = await api.get("/tasks", {headers: {Authorization: `Bearer ${session?.accessToken}`}});
+      const {data} = await api.get("/tasks", {headers: {Authorization: `Bearer ${session?.accessToken}`}});
       setTasks(data);
     } catch (error) {
       setError(error);
@@ -42,56 +49,61 @@ export const TasksProvider = ({ children }) => {
     }
   };
 
+  useEffect(() => {
+    if (session) {
+      fetchTasks()
+    }
+  }, [session])
+
   const createTask = async (task: Task) => {
-    console.log("createTask")
-    console.log(task)
     setLoading(true);
-    console.log("antes")
     try {
-      console.log("try")
       await api.post("/tasks", task, {headers: {Authorization: `Bearer ${session?.accessToken}`}});
       enqueueSnackbar('Task created successfully', {variant: 'success'});
       await fetchTasks();
     } catch (error) {
-      console.log("catch")
       setError(error);
       enqueueSnackbar(error, {variant: 'error'});
     } finally {
-      console.log("finally")
       setLoading(false);
     }
   };
 
   const startTask = async (task: Task) => {
-    console.log("startTask")
-    console.log(task)
     setLoading(true);
     try {
       await api.put("/tasks/" + task.id + "/start", {headers: {Authorization: `Bearer ${session?.accessToken}`}});
       await fetchTasks();
     } catch (error) {
-      console.log("catch")
       setError(error);
       enqueueSnackbar(error, {variant: 'error'});
     } finally {
-      console.log("finally")
       setLoading(false);
     }
   };
 
   const stopTask = async (task: Task) => {
-    console.log("stopTask")
-    console.log(task)
     setLoading(true);
     try {
       await api.put("/tasks/" + task.id + "/stop", {headers: {Authorization: `Bearer ${session?.accessToken}`}});
       await fetchTasks();
     } catch (error) {
-      console.log("catch")
       setError(error);
       enqueueSnackbar(error, {variant: 'error'});
     } finally {
-      console.log("finally")
+      setLoading(false);
+    }
+  };
+
+  const removeTask = async (id: string) => {
+    setLoading(true);
+    try {
+      await api.delete("/tasks/" + id, {headers: {Authorization: `Bearer ${session?.accessToken}`}});
+      await fetchTasks();
+    } catch (error) {
+      setError(error);
+      enqueueSnackbar(error, {variant: 'error'});
+    } finally {
       setLoading(false);
     }
   };
@@ -101,7 +113,8 @@ export const TasksProvider = ({ children }) => {
   }, []);
 
   return (
-      <TaskContext.Provider value={{ tasks, fetchTasks, loading, error, createTask, startTask, stopTask }}>
+      <TaskContext.Provider
+          value={{tasks, fetchTasks, loading, error, createTask, startTask, stopTask, removeTask}}>
         {children}
       </TaskContext.Provider>
   );

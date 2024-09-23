@@ -75,6 +75,7 @@ public class TasksResource {
 
     @DELETE
     @Path("/{id}")
+    @Transactional
     public Response deleteById(@PathParam("id") UUID id) {
         Task task = this.taskRepository.find("id", id).firstResult();
         this.taskRepository.delete(task);
