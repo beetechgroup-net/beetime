@@ -1,5 +1,6 @@
 package net.beetechgroup.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,6 +26,7 @@ public class Task {
     private LocalDateTime startTime;
     private LocalDateTime stopTime;
     private Long duration;
+    @Column(name = "user_id")
     private String userId;
 
     public void create() {
