@@ -54,6 +54,7 @@ export default function CreateTaskForm() {
               <FormTextField
                   label={"Description"}
                   name={"description"}
+                  type={"text"}
               />
             </Grid2>
             <Grid2 size={12}>

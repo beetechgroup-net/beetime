@@ -40,6 +40,7 @@ export default function CreateCategoryForm() {
               <FormTextField
                   label={"Name"}
                   name={"name"}
+                  type={"text"}
               />
             </Grid2>
             <Grid2 size={6}>
