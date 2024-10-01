@@ -12,6 +12,7 @@ import {Task} from "@/app/interfaces/Task";
 import {prettify, TaskStatus} from "@/app/interfaces/TaskStatus";
 import {useTasks} from "@/app/contexts/TasksContext";
 import {DurationComponent} from "@/app/components/tables/DurationComponent";
+import {Category} from "@/app/interfaces/Category";
 
 function isPlayable(row: Task) {
   return row.status === TaskStatus.NOT_STARTED || row.status === TaskStatus.STOPPED;
@@ -36,7 +37,7 @@ export function TasksTable() {
   }
 
   const columns: GridColDef[] = [
-    { field: 'category', headerName: 'Category', width: 150, valueFormatter: (params) => params?.name },
+    { field: 'category', headerName: 'Category', width: 150, valueFormatter: (params: Category) => params.name },
     { field: 'description', headerName: 'Description', width: 400 },
     { field: 'status', headerName: 'Status', width: 150, valueFormatter: (params) => prettify(params) },
     {
@@ -89,12 +90,8 @@ export function TasksTable() {
         <DataGrid
             rows={tasks}
             columns={columns}
-            pageSize={100}
-            rowsPerPageOptions={[1]}
             pagination
             loading={loading}
-            error={error ? 'Error loading data' : undefined}
-            disableSelectionOnClick
         />
       </Card>
   );
