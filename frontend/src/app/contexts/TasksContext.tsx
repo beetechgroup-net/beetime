@@ -1,5 +1,5 @@
 "use client";
-import React, {createContext, useContext, useState, useEffect} from 'react';
+import React, {createContext, useContext, useState, useEffect, useCallback} from 'react';
 import {Task} from "@/app/interfaces/Task";
 import {useSession} from "next-auth/react";
 import {api} from "@/app/lib/api";
@@ -37,23 +37,26 @@ export const TasksProvider = ({children}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const {data: session} = useSession();
-  const fetchTasks = async (page = 0, size = 10) => {
-    setLoading(true);
-    try {
-      const {data} = await api.get("/tasks", {headers: {Authorization: `Bearer ${session?.accessToken}`}});
-      setTasks(data);
-    } catch (error) {
-      setError(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+
+  const fetchTasks = useCallback(
+      async (page = 0, size = 10) => {
+        setLoading(true);
+        try {
+          const {data} = await api.get("/tasks", {headers: {Authorization: `Bearer ${session?.accessToken}`}});
+          setTasks(data);
+        } catch (error) {
+          setError(error);
+        } finally {
+          setLoading(false);
+        }
+      }, [session?.accessToken]
+  )
 
   useEffect(() => {
     if (session) {
       fetchTasks()
     }
-  }, [session])
+  }, [session, fetchTasks])
 
   const createTask = async (task: Task) => {
     setLoading(true);
@@ -107,10 +110,6 @@ export const TasksProvider = ({children}) => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchTasks().then(() => console.log(tasks));
-  }, []);
 
   return (
       <TaskContext.Provider
