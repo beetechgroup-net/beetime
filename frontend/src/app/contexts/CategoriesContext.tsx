@@ -5,48 +5,51 @@ import {useSession} from "next-auth/react";
 import {api} from "@/app/lib/api";
 import {enqueueSnackbar} from "notistack";
 
+export interface PaginationModel {
+  page: number;
+  pageSize: number;
+}
+
 // Create a context with a default value
 const CategoriesContext = createContext<{
   categories: Category[];
   total: number;
-  page: number;
-  pageSize: number;
-  fetchCategories: () => void;
+  fetchCategories: () => Promise<void>;
   loading: boolean;
-  error: string | null;
+  error: string | null | unknown;
   createCategory: (category: Category) => void;
   removeCategory: (id: string) => void;
-  setPage: (page: number) => void;
-  setPageSize: (pageSize: number) => void;
+  paginationModel: PaginationModel
+  setPaginationModel: (paginationModel: PaginationModel) => void;
 }>({
   categories: [],
   total: 0,
-  page: 1,
-  pageSize: 10,
-  fetchCategories: () => {
-  },
+  fetchCategories: () => Promise.resolve(),
   loading: true,
   error: null,
   createCategory: () => {
   },
   removeCategory: () => {
   },
-  setPage: () => {
+  paginationModel: {
+    page: 1,
+    pageSize: 10
   },
-  setPageSize: () => {
-  },
+  setPaginationModel: (paginationModel: PaginationModel) => {
+  }
 });
 
 
 export const CategoriesProvider = ({children}: { children: React.ReactNode }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown>();
   const {data: session} = useSession();
-
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 5,
+  });
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
@@ -55,7 +58,7 @@ export const CategoriesProvider = ({children}: { children: React.ReactNode }) =>
         headers: {
           Authorization: `Bearer ${session?.accessToken}`
         },
-        params: {page, pageSize}
+        params: {...paginationModel}
       });
       setTotal(data.total);
       setCategories(data.results);
@@ -64,7 +67,7 @@ export const CategoriesProvider = ({children}: { children: React.ReactNode }) =>
     } finally {
       setLoading(false);
     }
-  }, [page, session?.accessToken, pageSize]);
+  }, [session?.accessToken, paginationModel]);
 
   const createCategory = async (category: Category) => {
     setLoading(true);
@@ -98,7 +101,7 @@ export const CategoriesProvider = ({children}: { children: React.ReactNode }) =>
 
   useEffect(() => {
     fetchCategories();
-  }, [page, pageSize, fetchCategories]);
+  }, [fetchCategories, paginationModel]);
 
   return (
       <CategoriesContext.Provider
@@ -109,11 +112,9 @@ export const CategoriesProvider = ({children}: { children: React.ReactNode }) =>
             error,
             createCategory,
             removeCategory,
-            setPage,
-            setPageSize,
             total,
-            page,
-            pageSize
+            paginationModel,
+            setPaginationModel
           }}>
         {children}
       </CategoriesContext.Provider>

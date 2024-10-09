@@ -7,7 +7,7 @@ import {useCategories} from "@/app/contexts/CategoriesContext";
 import dayjs from "dayjs";
 
 export function CategoriesTable() {
-  const {loading, error, categories, fetchCategories, removeCategory, total, page, pageSize, setPage, setPageSize } = useCategories()
+  const {loading, error, categories, fetchCategories, removeCategory, total,paginationModel , setPaginationModel } = useCategories()
 
   const columns: GridColDef[] = [
     { field: 'name', headerName: 'Name', width: 200 },
@@ -36,6 +36,8 @@ export function CategoriesTable() {
             paginationMode="server"
             pagination
             loading={loading}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
         />
       </Card>
   );

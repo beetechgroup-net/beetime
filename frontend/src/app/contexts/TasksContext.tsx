@@ -10,7 +10,7 @@ const TaskContext = createContext<{
   tasks: Task[];
   fetchTasks: () => void;
   loading: boolean;
-  error: string | null;
+  error: string | unknown | undefined;
   createTask: (task: Task) => void;
   startTask: (task: Task) => void;
   stopTask: (task: Task) => void;
@@ -20,7 +20,7 @@ const TaskContext = createContext<{
   fetchTasks: () => {
   },
   loading: true,
-  error: null,
+  error: undefined,
   createTask: () => {
   },
   startTask: () => {
@@ -32,10 +32,10 @@ const TaskContext = createContext<{
 });
 
 
-export const TasksProvider = ({children}) => {
+export const TasksProvider = ({children}: { children: React.ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | unknown | undefined>();
   const {data: session} = useSession();
 
   const fetchTasks = useCallback(
@@ -66,7 +66,7 @@ export const TasksProvider = ({children}) => {
       await fetchTasks();
     } catch (error) {
       setError(error);
-      enqueueSnackbar(error, {variant: 'error'});
+      enqueueSnackbar("error", {variant: 'error'});
     } finally {
       setLoading(false);
     }
@@ -79,7 +79,7 @@ export const TasksProvider = ({children}) => {
       await fetchTasks();
     } catch (error) {
       setError(error);
-      enqueueSnackbar(error, {variant: 'error'});
+      enqueueSnackbar("error", {variant: 'error'});
     } finally {
       setLoading(false);
     }
@@ -92,7 +92,7 @@ export const TasksProvider = ({children}) => {
       await fetchTasks();
     } catch (error) {
       setError(error);
-      enqueueSnackbar(error, {variant: 'error'});
+      enqueueSnackbar("error", {variant: 'error'});
     } finally {
       setLoading(false);
     }
@@ -105,7 +105,7 @@ export const TasksProvider = ({children}) => {
       await fetchTasks();
     } catch (error) {
       setError(error);
-      enqueueSnackbar(error, {variant: 'error'});
+      enqueueSnackbar("error", {variant: 'error'});
     } finally {
       setLoading(false);
     }

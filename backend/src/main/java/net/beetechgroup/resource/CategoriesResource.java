@@ -2,6 +2,7 @@ package net.beetechgroup.resource;
 
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
+import io.quarkus.panache.common.Sort.Direction;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -42,15 +43,16 @@ public class CategoriesResource {
     @Authenticated
     public Response retrieveAll(
             @QueryParam("page") @DefaultValue("0") Integer page,
-            @QueryParam("size") @DefaultValue("10") Integer size,
+            @QueryParam("pageSize") @DefaultValue("10") Integer pageSize,
             @QueryParam("orderBy") @DefaultValue("registrationDate") String orderBy,
             @QueryParam("sortDirection") @DefaultValue("Descending") String sortDirection
     ) {
         String email = idToken.getClaim("email");
+//        Sort sort = Sort.by(orderBy, Direction.Descending);
         List<Category> categories =
                 this.categoryRepository
-                        .find("userId = ?1", email, Sort.by(orderBy, Sort.Direction.valueOf(sortDirection)))
-                        .page(Page.of(page, size))
+                        .find("userId = ?1", email)
+                        .page(Page.of(page, pageSize))
                         .list();
         long count = this.categoryRepository.count();
         return Response.ok(new PaginatedResult<>(categories, count)).build();

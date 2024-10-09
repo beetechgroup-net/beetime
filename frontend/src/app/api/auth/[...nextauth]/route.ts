@@ -3,6 +3,7 @@ import KeycloakProvider from "next-auth/providers/keycloak";
 import * as https from "https";
 
 const handler = NextAuth({
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     KeycloakProvider({
       clientId: process.env.KEYCLOAK_CLIENT_ID!,

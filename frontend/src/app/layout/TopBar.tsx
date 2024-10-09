@@ -13,7 +13,6 @@ export default function TopBar() {
           alignItems="center"
           justifyContent="right"
           height={70}
-          backgroundColor="background.secondary"
       >
         <NotificationsNoneOutlinedIcon k={12}/>
         <Typography variant="h6">
