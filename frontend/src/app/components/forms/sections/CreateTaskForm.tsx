@@ -9,10 +9,18 @@ import {FormDropdown} from "@/app/components/forms/base/FormDropdown";
 import {useTasks} from "@/app/contexts/TasksContext";
 import {TaskStatus} from "@/app/interfaces/TaskStatus";
 import {enqueueSnackbar} from "notistack";
+import {useEffect} from "react";
 
 export default function CreateTaskForm() {
-  const {categories, loading: categoryLoading} = useCategories();
+  const {categories, loading: categoryLoading, setPaginationModel} = useCategories();
   const {createTask} = useTasks();
+
+  useEffect(() => {
+    setPaginationModel({
+      page: 0,
+      pageSize: 50
+    })
+  }, [])
 
   const methods = useForm({
     resolver: yupResolver<FieldValues>(yup.object().shape({

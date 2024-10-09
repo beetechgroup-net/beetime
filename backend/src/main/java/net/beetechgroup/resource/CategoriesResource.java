@@ -48,10 +48,10 @@ public class CategoriesResource {
             @QueryParam("sortDirection") @DefaultValue("Descending") String sortDirection
     ) {
         String email = idToken.getClaim("email");
-//        Sort sort = Sort.by(orderBy, Direction.Descending);
+        Sort sort = Sort.by(orderBy, Direction.Descending);
         List<Category> categories =
                 this.categoryRepository
-                        .find("userId = ?1", email)
+                        .find("userId = ?1", sort, email)
                         .page(Page.of(page, pageSize))
                         .list();
         long count = this.categoryRepository.count();

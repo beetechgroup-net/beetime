@@ -4,10 +4,12 @@ import {Task} from "@/app/interfaces/Task";
 import {useSession} from "next-auth/react";
 import {api} from "@/app/lib/api";
 import {enqueueSnackbar} from "notistack";
+import {PaginationModel} from "@/app/contexts/PaginationModel";
 
 // Create a context with a default value
 const TaskContext = createContext<{
   tasks: Task[];
+  total: number;
   fetchTasks: () => void;
   loading: boolean;
   error: string | unknown | undefined;
@@ -15,8 +17,11 @@ const TaskContext = createContext<{
   startTask: (task: Task) => void;
   stopTask: (task: Task) => void;
   removeTask: (id: string) => void;
+  paginationModel: PaginationModel
+  setPaginationModel: (paginationModel: PaginationModel) => void;
 }>({
   tasks: [],
+  total: 0,
   fetchTasks: () => {
   },
   loading: true,
@@ -28,29 +33,44 @@ const TaskContext = createContext<{
   stopTask: () => {
   },
   removeTask: () => {
+  },
+  paginationModel: {
+    page: 1,
+    pageSize: 10
+  },
+  setPaginationModel: (paginationModel: PaginationModel) => {
   }
 });
 
 
 export const TasksProvider = ({children}: { children: React.ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | unknown | undefined>();
   const {data: session} = useSession();
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 5,
+  });
 
-  const fetchTasks = useCallback(
-      async (page = 0, size = 10) => {
-        setLoading(true);
-        try {
-          const {data} = await api.get("/tasks", {headers: {Authorization: `Bearer ${session?.accessToken}`}});
-          setTasks(data);
-        } catch (error) {
-          setError(error);
-        } finally {
-          setLoading(false);
-        }
-      }, [session?.accessToken]
-  )
+  const fetchTasks = useCallback(async () => {
+    setLoading(true);
+    try {
+      const {data} = await api.get("/tasks", {
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`
+        },
+        params: {...paginationModel}
+      });
+      setTotal(data.total);
+      setTasks(data.results);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [session?.accessToken, paginationModel]);
 
   useEffect(() => {
     if (session) {
@@ -113,7 +133,19 @@ export const TasksProvider = ({children}: { children: React.ReactNode }) => {
 
   return (
       <TaskContext.Provider
-          value={{tasks, fetchTasks, loading, error, createTask, startTask, stopTask, removeTask}}>
+          value={{
+            tasks,
+            fetchTasks,
+            loading,
+            error,
+            createTask,
+            startTask,
+            stopTask,
+            removeTask,
+            paginationModel,
+            setPaginationModel,
+            total
+      }}>
         {children}
       </TaskContext.Provider>
   );

@@ -4,13 +4,8 @@ import {Category} from "@/app/interfaces/Category";
 import {useSession} from "next-auth/react";
 import {api} from "@/app/lib/api";
 import {enqueueSnackbar} from "notistack";
+import {PaginationModel} from "@/app/contexts/PaginationModel";
 
-export interface PaginationModel {
-  page: number;
-  pageSize: number;
-}
-
-// Create a context with a default value
 const CategoriesContext = createContext<{
   categories: Category[];
   total: number;
@@ -97,10 +92,10 @@ export const CategoriesProvider = ({children}: { children: React.ReactNode }) =>
     }
   }
 
-
-
   useEffect(() => {
-    fetchCategories();
+    if (session) {
+      fetchCategories()
+    }
   }, [fetchCategories, paginationModel]);
 
   return (

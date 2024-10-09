@@ -1,8 +1,8 @@
 "use client"
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { Card, IconButton, Stack } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import {useEffect, useState} from 'react';
+import {Card, IconButton, Stack} from '@mui/material';
+import {DataGrid, GridColDef} from '@mui/x-data-grid';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 import StopOutlinedIcon from '@mui/icons-material/StopOutlined';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
@@ -19,7 +19,18 @@ function isPlayable(row: Task) {
 }
 
 export function TasksTable() {
-  const { tasks, fetchTasks, startTask, stopTask, loading, error, removeTask } = useTasks();
+  const {
+    tasks,
+    fetchTasks,
+    startTask,
+    stopTask,
+    loading,
+    error,
+    removeTask,
+    paginationModel,
+    setPaginationModel,
+    total
+  } = useTasks();
   const [duration, setDuration] = useState(0);
 
   useEffect(() => {
@@ -37,9 +48,19 @@ export function TasksTable() {
   }
 
   const columns: GridColDef[] = [
-    { field: 'category', headerName: 'Category', width: 150, valueFormatter: (params: Category) => params.name },
-    { field: 'description', headerName: 'Description', width: 400 },
-    { field: 'status', headerName: 'Status', width: 150, valueFormatter: (params) => prettify(params) },
+    {
+      field: 'category',
+      headerName: 'Category',
+      width: 150,
+      valueFormatter: (params: Category) => params.name
+    },
+    {field: 'description', headerName: 'Description', width: 400},
+    {
+      field: 'status',
+      headerName: 'Status',
+      width: 150,
+      valueFormatter: (params) => prettify(params)
+    },
     {
       field: 'startTime',
       headerName: 'Start Time',
@@ -56,7 +77,7 @@ export function TasksTable() {
       field: 'duration',
       headerName: 'Duration',
       width: 100,
-      renderCell: (params) => <DurationComponent task={params.row} />,
+      renderCell: (params) => <DurationComponent task={params.row}/>,
     },
     {
       field: 'actions',
@@ -66,19 +87,19 @@ export function TasksTable() {
           <Stack direction="row" spacing={1}>
             {isPlayable(params.row) && (
                 <IconButton onClick={() => handleStartTask(params.row)}>
-                  <PlayArrowOutlinedIcon color="success" />
+                  <PlayArrowOutlinedIcon color="success"/>
                 </IconButton>
             )}
             {!isPlayable(params.row) && (
                 <IconButton onClick={() => handleStopTask(params.row)}>
-                  <StopOutlinedIcon color="error" />
+                  <StopOutlinedIcon color="error"/>
                 </IconButton>
             )}
             {/*<IconButton>*/}
             {/*  <CreateOutlinedIcon color="info" onClick={() => removeTask(params.row.id)} />*/}
             {/*</IconButton>*/}
             <IconButton>
-              <DeleteOutlinedIcon color="warning" onClick={() => removeTask(params.row.id)} />
+              <DeleteOutlinedIcon color="warning" onClick={() => removeTask(params.row.id)}/>
             </IconButton>
           </Stack>
       ),
@@ -86,12 +107,17 @@ export function TasksTable() {
   ];
 
   return (
-      <Card style={{ height: 600, width: '100%' }}>
+      <Card style={{height: 600, width: '100%'}}>
         <DataGrid
             rows={tasks}
             columns={columns}
+            rowCount={total}
+            pageSizeOptions={[5, 10, 20]}
+            paginationMode="server"
             pagination
             loading={loading}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
         />
       </Card>
   );

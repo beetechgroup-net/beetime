@@ -28,6 +28,8 @@ public class Task {
     private Long duration;
     @Column(name = "user_id")
     private String userId;
+    @Column(name = "registration_date")
+    private LocalDateTime registrationDate = LocalDateTime.now();
 
     public void create() {
         this.status = TaskStatus.NOT_STARTED;
