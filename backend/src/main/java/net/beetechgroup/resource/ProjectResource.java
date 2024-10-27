@@ -112,13 +112,29 @@ public class ProjectResource {
     }
 
     @GET
+    @Path("/manager")
     @Authenticated
-    public Response retrieveAll(PaginationQueryParams params) {
+    public Response retrieveAllManager(PaginationQueryParams params) {
         String email = idToken.getClaim("email");
         Sort sort = Sort.by(params.orderBy, Direction.Descending);
         List<Project> projects =
                 this.projectRepository
                         .find("?1 MEMBER OF managers", sort, email)
+                        .page(Page.of(params.page, params.pageSize))
+                        .list();
+        long count = this.projectRepository.find("?1 MEMBER OF managers", sort, email).count();
+        return Response.ok(new PaginatedResult<>(projects, count)).build();
+    }
+
+    @GET
+    @Path("/member")
+    @Authenticated
+    public Response retrieveAllMember(PaginationQueryParams params) {
+        String email = idToken.getClaim("email");
+        Sort sort = Sort.by(params.orderBy, Direction.Descending);
+        List<Project> projects =
+                this.projectRepository
+                        .find("?1 MEMBER OF members", sort, email)
                         .page(Page.of(params.page, params.pageSize))
                         .list();
         long count = this.projectRepository.find("?1 MEMBER OF managers", sort, email).count();
