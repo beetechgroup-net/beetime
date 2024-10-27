@@ -30,6 +30,8 @@ export default function SideBar() {
         </Stack>
         <Divider sx={{ width: "100%" }} />
         <SideBarItem Icon={SpaceDashboardOutlinedIcon} label="Home" route="/" />
+        <SideBarItem Icon={SpaceDashboardOutlinedIcon} label="My Projects" route="/projects" />
+        <SideBarItem Icon={SpaceDashboardOutlinedIcon} label="Create Project" route="/projects/create" />
         <SideBarItem Icon={AssignmentOutlinedIcon} label="My Tasks" route="/tasks" />
         <SideBarItem Icon={AssignmentOutlinedIcon} label="Create Task" route="/tasks/create" />
         <SideBarItem Icon={AccountCircleOutlinedIcon} label="Categories" route="/categories" />
