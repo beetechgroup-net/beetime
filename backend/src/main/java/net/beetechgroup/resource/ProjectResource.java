@@ -1,13 +1,21 @@
 package net.beetechgroup.resource;
 
+import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
+import io.quarkus.panache.common.Sort.Direction;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -101,6 +109,20 @@ public class ProjectResource {
         initializeRelationsToAvoidLazyExceptions(project);
 
         return Response.ok().entity(project).build();
+    }
+
+    @GET
+    @Authenticated
+    public Response retrieveAll(PaginationQueryParams params) {
+        String email = idToken.getClaim("email");
+        Sort sort = Sort.by(params.orderBy, Direction.Descending);
+        List<Project> projects =
+                this.projectRepository
+                        .find("?1 MEMBER OF managers", sort, email)
+                        .page(Page.of(params.page, params.pageSize))
+                        .list();
+        long count = this.projectRepository.find("?1 MEMBER OF managers", sort, email).count();
+        return Response.ok(new PaginatedResult<>(projects, count)).build();
     }
 
     private static void initializeRelationsToAvoidLazyExceptions(Project project) {
